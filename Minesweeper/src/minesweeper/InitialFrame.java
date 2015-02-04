@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -25,8 +24,8 @@ public class InitialFrame extends JFrame
 	
 	private MinesweeperPanel minesweeperPanel;
 	
-	String textInput;
-	private JTextField textField;
+	private JTextField textField_Rows;
+	private JTextField textField_Columns;
 
 	public static void main(String[] args) 
 	{
@@ -106,13 +105,21 @@ public class InitialFrame extends JFrame
 		JPanel inputPanel = new JPanel();
 		inputPanel.setBackground(Color.DARK_GRAY);
 		
-		JLabel enterTextHereLabel = new JLabel("Enter the number of rows :  ");
-		enterTextHereLabel.setForeground(Color.WHITE);
-		enterTextHereLabel.setFont(new Font("Verdana", Font.PLAIN, 20));
-		inputPanel.add(enterTextHereLabel);
+		JLabel enterRowsLabel = new JLabel("Enter the number of rows :  ");
+		enterRowsLabel.setForeground(Color.WHITE);
+		enterRowsLabel.setFont(new Font("Verdana", Font.PLAIN, 16));
+		inputPanel.add(enterRowsLabel);
 		
-		JTextField textField = createTextField_GameStartPanel();
-		inputPanel.add(textField);
+		textField_Rows = createTextField_GameStartPanel();
+		inputPanel.add(textField_Rows);
+		
+		JLabel enterColumnsLabel = new JLabel("Enter the number of columns :  ");
+		enterColumnsLabel.setForeground(Color.WHITE);
+		enterColumnsLabel.setFont(new Font("Verdana", Font.PLAIN, 16));
+		inputPanel.add(enterColumnsLabel);
+		
+		textField_Columns = createTextField_GameStartPanel();
+		inputPanel.add(textField_Columns);
 		
 		JButton playGameButton = createPlayGameButton_GameStartPanel();
 		inputPanel.add(playGameButton);
@@ -135,18 +142,15 @@ public class InitialFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if (isTextInputNumber())
-				{
-					mainPanel.remove(gameStartPanel);
-					
-					minesweeperPanel = new MinesweeperPanel(Integer.parseInt(textInput));
-					mainPanel.add(minesweeperPanel, BorderLayout.CENTER);
-					
-					revalidate();
-					repaint();
-				}
-				else
-					JOptionPane.showMessageDialog(null, "asdfasfd");
+				mainPanel.remove(gameStartPanel);
+				
+				minesweeperPanel = new MinesweeperPanel(
+						Integer.parseInt(validateAndReturnInput(textField_Rows.getText())),
+						Integer.parseInt(validateAndReturnInput(textField_Columns.getText())));
+				mainPanel.add(minesweeperPanel, BorderLayout.CENTER);
+				
+				revalidate();
+				repaint();
 			}
 		});
 		return playGameButton;
@@ -154,23 +158,25 @@ public class InitialFrame extends JFrame
 
 	private JTextField createTextField_GameStartPanel()
 	{
-		textField = new JTextField();
-		textField.setColumns(10);
-		textField.setFont(new Font("Verdana", Font.BOLD, 20));
+		JTextField textField = new JTextField();
+		textField.setColumns(5);
+		textField.setFont(new Font("Verdana", Font.BOLD, 16));
 		
 		return textField;
 	}
 	
-	private boolean isTextInputNumber()
+	private String validateAndReturnInput(String textFieldInput)
 	{
-		if (textField.getText() == null)
+		if (textFieldInput == null || textFieldInput.equalsIgnoreCase(""))
 		{
-			textInput = "8";
-			return true;
+			textFieldInput = "8";
+			return textFieldInput;
 		}
 		
-		textInput = textField.getText();
-		textInput = textInput.replaceAll("[^0-9]", "").trim();
-		return true;
+		textFieldInput = textFieldInput.replaceAll("[^0-9]", "").trim();
+		if (Integer.parseInt(textFieldInput) > 20)
+			return "20";
+		
+		return textFieldInput;
 	}
 }

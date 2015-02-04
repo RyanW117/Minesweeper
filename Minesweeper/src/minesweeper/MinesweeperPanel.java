@@ -28,7 +28,7 @@ public class MinesweeperPanel extends JPanel
 	private static int tilesAvailable_DOWN;
 	private static int[] cursorMovements;
 	
-	public MinesweeperPanel(int rows)
+	public MinesweeperPanel(int rows, int columns)
 	{
 		numberOfRows = rows;
 		setLayout(new BorderLayout(5,5));
@@ -43,10 +43,10 @@ public class MinesweeperPanel extends JPanel
 		buttonArrayPanel.setBackground(Color.WHITE);
 		add(buttonArrayPanel, BorderLayout.CENTER);
 		
-		createMinesweeperButtons(rows);
+		createMinesweeperButtons(rows, columns);
 	}
 
-	public static void createMinesweeperButtons(int rows) 
+	public static void createMinesweeperButtons(int rows, int columns) 
 	{
 		int mines = assignNumberOfMines(rows);
 		
@@ -54,16 +54,16 @@ public class MinesweeperPanel extends JPanel
 		
 		for (int i = 0; i < mines; i++)
 			buttons.add(new MinesweeperButton(0,0));
-		for (int i = 0; i < ((rows * rows) - mines); i++)
+		for (int i = 0; i < ((rows * columns) - mines); i++)
 			buttons.add(new MinesweeperButton(0,0,0));
 		
 		Collections.shuffle(buttons);
 		
-		buttonArray = new MinesweeperButton[rows][rows];
+		buttonArray = new MinesweeperButton[rows][columns];
 		int assignmentVariable = 0;
 		
 		for (int i = 0; i < rows; i++)
-			for (int j = 0; j < rows; j++)
+			for (int j = 0; j < columns; j++)
 			{
 				buttons.get(assignmentVariable).setRowNumber(i);
 				buttons.get(assignmentVariable).setColumnNumber(j);				
@@ -72,17 +72,17 @@ public class MinesweeperPanel extends JPanel
 			}
 		
 		for (int i = 0; i < rows; i++)
-			for (int j = 0; j < rows; j++)
+			for (int j = 0; j < columns; j++)
 				buttonArrayPanel.add(buttonArray[i][j]);
 		
-		minesweeperLogic(rows);
+		minesweeperLogic(rows, columns);
 	}
 	
-	private static void minesweeperLogic(int rows)
+	private static void minesweeperLogic(int rows, int columns)
 	{
 		for (int i = 0; i < rows; i++)
 		{
-			for (int j = 0; j < rows; j++)
+			for (int j = 0; j < columns; j++)
 			{
 				if (buttonArray[i][j].getIsMine())
 				{
@@ -92,17 +92,17 @@ public class MinesweeperPanel extends JPanel
 							buttonArray[i + 1][j].setNumber(buttonArray[i + 1][j].getNumber() + 1);
 					
 					//Bottom Right
-					if ((i + 1 >= 0 && i + 1 < (rows)) && (j + 1 >= 0 && j + 1 < (rows)))
+					if ((i + 1 >= 0 && i + 1 < (rows)) && (j + 1 >= 0 && j + 1 < (columns)))
 						if (!buttonArray[i + 1][j + 1].getIsMine())
 							buttonArray[i + 1][j + 1].setNumber(buttonArray[i + 1][j + 1].getNumber() + 1);
 					
 					//Right
-					if (j + 1 >= 0 && j + 1 < (rows))
+					if (j + 1 >= 0 && j + 1 < (columns))
 						if (!buttonArray[i][j + 1].getIsMine())
 							buttonArray[i][j + 1].setNumber(buttonArray[i][j + 1].getNumber() + 1);
 					
 					//Top Right
-					if ((i - 1 >= 0 && i - 1 < (rows)) && (j + 1 >= 0 && j + 1 < (rows)))
+					if ((i - 1 >= 0 && i - 1 < (rows)) && (j + 1 >= 0 && j + 1 < (columns)))
 						if (!buttonArray[i - 1][j + 1].getIsMine())
 							buttonArray[i - 1][j + 1].setNumber(buttonArray[i - 1][j + 1].getNumber() + 1);
 					
@@ -112,17 +112,17 @@ public class MinesweeperPanel extends JPanel
 							buttonArray[i - 1][j].setNumber(buttonArray[i - 1][j].getNumber() + 1);
 					
 					//Top Left
-					if ((i - 1 >= 0 && i - 1 < (rows)) && (j - 1 >= 0 && j - 1 < (rows)))
+					if ((i - 1 >= 0 && i - 1 < (rows)) && (j - 1 >= 0 && j - 1 < (columns)))
 						if (!buttonArray[i - 1][j - 1].getIsMine())
 							buttonArray[i - 1][j - 1].setNumber(buttonArray[i - 1][j - 1].getNumber() + 1);
 					
 					//Left
-					if (j - 1 >= 0 && j - 1 < (rows))
+					if (j - 1 >= 0 && j - 1 < (columns))
 						if (!buttonArray[i][j - 1].getIsMine())
 							buttonArray[i][j - 1].setNumber(buttonArray[i][j - 1].getNumber() + 1);
 					
 					//Bottom Left
-					if ((i + 1 >= 0 && i + 1 < (rows)) && (j - 1 >= 0 && j - 1 < (rows)))
+					if ((i + 1 >= 0 && i + 1 < (rows)) && (j - 1 >= 0 && j - 1 < (columns)))
 						if (!buttonArray[i + 1][j - 1].getIsMine())
 							buttonArray[i + 1][j - 1].setNumber(buttonArray[i + 1][j - 1].getNumber() + 1);
 				}
@@ -156,19 +156,12 @@ public class MinesweeperPanel extends JPanel
 		MinesweeperButton activeButton = null;
 		cursorMovements = new int[] {1,1,2,2,2,0};
 		
-		int layers = 1;
-		while (layers < 10)
+		int layer = 1;
+		while (layer < 10)
 		{
 			revealNonNumberedSquares_resetVariables(rowNumber, columnNumber);
+			printVariableInfo(rowNumber, columnNumber, layer);
 			
-			System.out.println("\nTiles UP: " + tilesAvailable_UP +
-					"\nTiles RIGHT: " + tilesAvailable_RIGHT +
-					"\nTiles DOWN: " + tilesAvailable_DOWN +
-					"\nTiles LEFT: " + tilesAvailable_LEFT +
-					"\nRow: " + rowNumber + "   " + "Column: " + columnNumber +
-					"\nCursor Movements: " + Arrays.toString(cursorMovements) +
-					"\nLayers: " + layers);
-					
 			try
 			{
 				//Initially Down and Initially RIGHT and Finally Right
@@ -203,8 +196,8 @@ public class MinesweeperPanel extends JPanel
 				{
 					for (int i = 1; i <= cursorMovements[2]; i++)
 					{
-						if (rowNumber + 1 - i + (layers - 1) >= 0 && rowNumber + 1 - i + (layers - 1) < numberOfRows)
-							activeButton = buttonArray[rowNumber + 1 - i + (layers - 1)][columnNumber + cursorMovements[0]];
+						if (rowNumber + 1 - i + (layer - 1) >= 0 && rowNumber + 1 - i + (layer - 1) < numberOfRows)
+							activeButton = buttonArray[rowNumber + 1 - i + (layer - 1)][columnNumber + cursorMovements[0]];
 						if (!activeButton.getIsMine())
 							showButtonNumber(activeButton);
 					}
@@ -215,8 +208,8 @@ public class MinesweeperPanel extends JPanel
 				{
 					for (int i = 1; i <= cursorMovements[3]; i++)
 					{
-						if (columnNumber - i + 1 + (layers - 1) < numberOfRows && columnNumber - i + 1 + (layers - 1) >= 0)
-							activeButton = buttonArray[rowNumber - cursorMovements[0]][columnNumber - i + 1 + (layers - 1)];
+						if (columnNumber - i + 1 + (layer - 1) < numberOfRows && columnNumber - i + 1 + (layer - 1) >= 0)
+							activeButton = buttonArray[rowNumber - cursorMovements[0]][columnNumber - i + 1 + (layer - 1)];
 						if (!activeButton.getIsMine())
 							showButtonNumber(activeButton);
 					}
@@ -227,16 +220,16 @@ public class MinesweeperPanel extends JPanel
 				{
 					for (int i = 1; i <= cursorMovements[4]; i++)
 					{
-						if (rowNumber + i - 1 - (layers - 1) < numberOfRows && rowNumber + i - 1 - (layers - 1) >= 0)
-							activeButton = buttonArray[rowNumber + i - 1 - (layers - 1)][columnNumber - cursorMovements[0]];
+						if (rowNumber + i - 1 - (layer - 1) < numberOfRows && rowNumber + i - 1 - (layer - 1) >= 0)
+							activeButton = buttonArray[rowNumber + i - 1 - (layer - 1)][columnNumber - cursorMovements[0]];
 						if (!activeButton.getIsMine())
 							showButtonNumber(activeButton);
 					}
 				}
-				layers++;
+				layer++;
 				revealNonNumberedSquares_recalculateCursorMovements();
-				System.out.println("\nUpper " + upperBoundaryHit + "\nRight " + rightBoundaryHit + "\nLower " + lowerBoundaryHit + "\nLeft " + left_BoundaryHit);
-			} catch (Exception e)
+			} 
+			catch (Exception e)
 			{
 				e.printStackTrace();
 				System.out.println("\nUpper " + upperBoundaryHit + "\nRight " + rightBoundaryHit + "\nLower " + lowerBoundaryHit + "\nLeft " + left_BoundaryHit);
@@ -281,5 +274,16 @@ public class MinesweeperPanel extends JPanel
 		activeButton.setEnabled(false);
 		if (activeButton.getNumber() != 0)
 			activeButton.setText(activeButton.getNumber() + "");
-	}	
+	}
+	
+	private static void printVariableInfo(int rowNumber, int columnNumber, int layers)
+	{
+		System.out.println("\nTiles UP: " + tilesAvailable_UP +
+				"\nTiles RIGHT: " + tilesAvailable_RIGHT +
+				"\nTiles DOWN: " + tilesAvailable_DOWN +
+				"\nTiles LEFT: " + tilesAvailable_LEFT +
+				"\nRow: " + rowNumber + "   " + "Column: " + columnNumber +
+				"\nCursor Movements: " + Arrays.toString(cursorMovements) +
+				"\nLayers: " + layers);
+	}
 }
