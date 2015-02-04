@@ -15,6 +15,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * This class contains most of the GUI aspect of the program and it launches the program.
+ * 
+ * @author Ryan Wilson
+ */
 public class InitialFrame extends JFrame 
 {
 	private static final long serialVersionUID = 1L;
@@ -46,6 +51,11 @@ public class InitialFrame extends JFrame
 		});
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * Contains two panels.
+	 */
 	public InitialFrame() 
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -156,6 +166,11 @@ public class InitialFrame extends JFrame
 		return playGameButton;
 	}
 
+	/**
+	 * Returns a JTextField with some properties.
+	 * 
+	 * @return a modified JTextField
+	 */
 	private JTextField createTextField_GameStartPanel()
 	{
 		JTextField textField = new JTextField();
@@ -165,6 +180,13 @@ public class InitialFrame extends JFrame
 		return textField;
 	}
 	
+	/**
+	 * A method that tests the player's input for letters or spaces and removes them.
+	 * Also, if the number is too big, it returns 20.
+	 * 
+	 * @param textFieldInput
+	 * @return
+	 */
 	private String validateAndReturnInput(String textFieldInput)
 	{
 		if (textFieldInput == null || textFieldInput.equalsIgnoreCase(""))

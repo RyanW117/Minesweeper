@@ -11,6 +11,16 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+/**
+ * This class does most of the logic calculations.  It makes
+ * sure that the all of the MinesweeperButtons have the correct
+ * values according to the number of mines that are adjacent to them.
+ * It also has a method that allows the user to click a tile with a
+ * value of 0 which will automatically any other tile with 0 nearby (still
+ * working on that).
+ * 
+ * @author Ryan Wilson
+ */
 public class MinesweeperPanel extends JPanel 
 {
 	private static final long serialVersionUID = 8695450935260311620L;
@@ -28,6 +38,12 @@ public class MinesweeperPanel extends JPanel
 	private static int tilesAvailable_DOWN;
 	private static int[] cursorMovements;
 	
+	/**
+	 * Initially create the panels.
+	 * 
+	 * @param rows
+	 * @param columns
+	 */
 	public MinesweeperPanel(int rows, int columns)
 	{
 		numberOfRows = rows;
@@ -46,6 +62,13 @@ public class MinesweeperPanel extends JPanel
 		createMinesweeperButtons(rows, columns);
 	}
 
+	/**
+	 * This method creates and orders the MinesweeperButtons so that they
+	 * appear in the correct logical way when playing the game.
+	 * 
+	 * @param rows
+	 * @param columns
+	 */
 	public static void createMinesweeperButtons(int rows, int columns) 
 	{
 		int mines = assignNumberOfMines(rows);
@@ -78,6 +101,13 @@ public class MinesweeperPanel extends JPanel
 		minesweeperLogic(rows, columns);
 	}
 	
+	/**
+	 * This method finds all of the minds on the board and increments
+	 * the value of all of the adjacent tiles by one.
+	 * 
+	 * @param rows
+	 * @param columns
+	 */
 	private static void minesweeperLogic(int rows, int columns)
 	{
 		for (int i = 0; i < rows; i++)
@@ -130,6 +160,13 @@ public class MinesweeperPanel extends JPanel
 		}
 	}
 
+	/**
+	 * A simple method that calculates how many mines there should be in a match.
+	 * (Later I hope to make this customizable by the player).
+	 * 
+	 * @param rows
+	 * @return the number of mines in the board.
+	 */
 	private static int assignNumberOfMines(int rows) 
 	{
 		int mines = (int) (rows * rows * rows * 0.02);
@@ -139,11 +176,9 @@ public class MinesweeperPanel extends JPanel
 		return mines;
 	}
 	
-	public static int getNumberOfRows()
-	{
-		return numberOfRows;
-	}
-	
+	/**
+	 * A method that removes all buttons from the buttonArrayPanel.
+	 */
 	public static void removeAllButtons()
 	{
 		for (int i = 0; i < numberOfRows; i++)
@@ -151,22 +186,35 @@ public class MinesweeperPanel extends JPanel
 				buttonArrayPanel.remove(buttonArray[i][j]);
 	}
 	
+	/**
+	 * This method reveals the tiles adjacent to the clicked button with a value of 0.
+	 * Imagine a pointer that first moves down from the clicked button, then right,
+	 * up, left, down again, and right again.  This is essentially the way this method
+	 * checks for adjacent tiles with a value of 0.
+	 * 
+	 * @param rowNumber - r position of the clicked button.
+	 * @param columnNumber - c position of the clicked button.
+	 */
 	protected static void revealNonNumberedSquares(int rowNumber, int columnNumber)
 	{
 		MinesweeperButton activeButton = null;
+		
+		//This stands for: move down 1, right 1, up 2, left 2, down 2, and finally right 0.
+		//After the while loop: {2, 2, 4, 4, 4, 1}.  After the next: {3, 3, 6, 6, 6, 2}.
 		cursorMovements = new int[] {1,1,2,2,2,0};
 		
 		int layer = 1;
-		while (layer < 10)
+		while (layer < 10)	//layer < 10 is not necessary.  It could be layer < 5 if you want.
 		{
 			revealNonNumberedSquares_resetVariables(rowNumber, columnNumber);
 			printVariableInfo(rowNumber, columnNumber, layer);
 			
+			//This try block is just for testing.
 			try
 			{
-				//Initially Down and Initially RIGHT and Finally Right
 				if (!lowerBoundaryHit)
 				{
+					//Initially Down
 					for (int i = 1; i <= cursorMovements[0]; i++)
 					{
 							activeButton = buttonArray[rowNumber + i][columnNumber];
@@ -174,6 +222,7 @@ public class MinesweeperPanel extends JPanel
 								showButtonNumber(activeButton);
 					}
 				
+					//Initially Right
 					for (int i = 1; i <= cursorMovements[1]; i++)
 					{
 							if (columnNumber + i < numberOfRows)
@@ -182,6 +231,7 @@ public class MinesweeperPanel extends JPanel
 								showButtonNumber(activeButton);
 					}
 					
+					//Finally Right 
 					for (int i = 1; i <= cursorMovements[5]; i++)
 					{
 						if (columnNumber - 1 - (i - 1) >= 0 && columnNumber - 1 - (i - 1) < numberOfRows)
@@ -191,9 +241,9 @@ public class MinesweeperPanel extends JPanel
 					}
 				}
 				
-				//UP
 				if (!rightBoundaryHit)
 				{
+					//UP
 					for (int i = 1; i <= cursorMovements[2]; i++)
 					{
 						if (rowNumber + 1 - i + (layer - 1) >= 0 && rowNumber + 1 - i + (layer - 1) < numberOfRows)
@@ -203,9 +253,9 @@ public class MinesweeperPanel extends JPanel
 					}
 				}
 				
-				//Left
 				if (!upperBoundaryHit)
 				{
+					//Left
 					for (int i = 1; i <= cursorMovements[3]; i++)
 					{
 						if (columnNumber - i + 1 + (layer - 1) < numberOfRows && columnNumber - i + 1 + (layer - 1) >= 0)
@@ -214,10 +264,10 @@ public class MinesweeperPanel extends JPanel
 							showButtonNumber(activeButton);
 					}
 				}
-		
-				//Finally Down
+				
 				if (!left_BoundaryHit)
 				{
+					//Finally Down
 					for (int i = 1; i <= cursorMovements[4]; i++)
 					{
 						if (rowNumber + i - 1 - (layer - 1) < numberOfRows && rowNumber + i - 1 - (layer - 1) >= 0)
@@ -226,6 +276,7 @@ public class MinesweeperPanel extends JPanel
 							showButtonNumber(activeButton);
 					}
 				}
+				
 				layer++;
 				revealNonNumberedSquares_recalculateCursorMovements();
 			} 
@@ -237,6 +288,12 @@ public class MinesweeperPanel extends JPanel
 		}
 	}
 	
+	/**
+	 * Resets all of the necessary variables needed in the revealNonNumberedSquares method.
+	 * 
+	 * @param rowNumber
+	 * @param columnNumber
+	 */
 	private static void revealNonNumberedSquares_resetVariables(int rowNumber, int columnNumber)
 	{
 		rightBoundaryHit = true;
@@ -258,6 +315,9 @@ public class MinesweeperPanel extends JPanel
 			upperBoundaryHit = false;
 	}
 	
+	/**
+	 * increments the cursorMovements array in a specific way.
+	 */
 	private static void revealNonNumberedSquares_recalculateCursorMovements()
 	{
 		for (int i = 0; i < cursorMovements.length; i++)
@@ -269,6 +329,11 @@ public class MinesweeperPanel extends JPanel
 		}
 	}
 	
+	/**
+	 * Shows the button's number and sets the button to disabled.
+	 * 
+	 * @param activeButton
+	 */
 	private static void showButtonNumber(MinesweeperButton activeButton)
 	{
 		activeButton.setEnabled(false);
@@ -276,6 +341,14 @@ public class MinesweeperPanel extends JPanel
 			activeButton.setText(activeButton.getNumber() + "");
 	}
 	
+	/**
+	 * Primarily used for testing.  Shows all of the values of the variables
+	 * that could go wrong.
+	 * 
+	 * @param rowNumber
+	 * @param columnNumber
+	 * @param layers
+	 */
 	private static void printVariableInfo(int rowNumber, int columnNumber, int layers)
 	{
 		System.out.println("\nTiles UP: " + tilesAvailable_UP +
@@ -286,4 +359,10 @@ public class MinesweeperPanel extends JPanel
 				"\nCursor Movements: " + Arrays.toString(cursorMovements) +
 				"\nLayers: " + layers);
 	}
+	
+	public static int getNumberOfRows()
+	{
+		return numberOfRows;
+	}
+	
 }

@@ -7,12 +7,18 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+/**
+ * The class that defines the MinesweeperButton.
+ * Minesweeper buttons can either be a bomb or a number.
+ * The numbers can vary between 0 ("") and 8.
+ * 
+ * @author Ryan Wilson
+ */
 public class MinesweeperButton extends JButton
 {
 	private static final long serialVersionUID = 3259047934452202538L;
 	private boolean isMine;
 	private int number;
-	private static boolean gameOver = false;
 	private int rowNumber;
 	private int columnNumber;
 		
@@ -29,11 +35,19 @@ public class MinesweeperButton extends JButton
 			{
 				setBackground(Color.RED);
 				setEnabled(false);
-				gameOver = true;
 			}
 		});
 	}
 	
+	/**
+	 * This constructor is for buttons that are not mines.
+	 * If the number is 0, it is a blank tile (there are no
+	 * mines next to that tile).
+	 * 
+	 * @param The value of the button after it is pressed.
+	 * @param r rows
+	 * @param c columns
+	 */
 	public MinesweeperButton(int number, int r, int c)
 	{
 		rowNumber = r;
@@ -65,8 +79,6 @@ public class MinesweeperButton extends JButton
 		});
 	}
 	
-	
-
 	public int getNumber()
 	{
 		return number;
@@ -83,11 +95,6 @@ public class MinesweeperButton extends JButton
 		return isMine;
 	}
 
-	public static boolean isGameOver() 
-	{
-		return gameOver;
-	}
-
 	public void setRowNumber(int rowNumber) 
 	{
 		this.rowNumber = rowNumber;
@@ -97,19 +104,4 @@ public class MinesweeperButton extends JButton
 	{
 		this.columnNumber = columnNumber;
 	}
-	
-//	public boolean isClicked()
-//	{
-//		return isClicked;
-//	}
-//
-//	public static int getTestVar() {
-//		return testVar;
-//	}
-//
-//	public static void setTestVar(int testVar) {
-//		MinesweeperButton.testVar = testVar;
-//	}
-	
-	
 }
