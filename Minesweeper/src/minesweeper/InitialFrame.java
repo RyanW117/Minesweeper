@@ -1,7 +1,6 @@
 package minesweeper;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -26,13 +25,8 @@ public class InitialFrame extends JFrame
 	
 	private MinesweeperPanel minesweeperPanel;
 	
-	private JPanel switchingPanel;
-	private CardLayout layout;
-	
-	private static final String STARTPANEL = "Time to start!";
-	private static final String MINESWEEPER = "minesweeper";
-	
 	String textInput;
+	private JTextField textField;
 
 	public static void main(String[] args) 
 	{
@@ -61,20 +55,26 @@ public class InitialFrame extends JFrame
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(5, 5));
 		setContentPane(contentPane);
-		layout = new CardLayout(20, 20);
 		
 		//The "Cards", panel1
-		gameStartPanel = createGameStartPanel(STARTPANEL);
+		gameStartPanel = createGameStartPanel();
 				
 		//mainPanel contains the cards.
-		mainPanel = createCardPanel();
-		mainPanel.add(gameStartPanel, STARTPANEL);
-		layout.show(mainPanel, STARTPANEL);
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout(5,5));
+		mainPanel.setBackground(Color.RED);
+		mainPanel.add(gameStartPanel, BorderLayout.CENTER);
 		
 		contentPane.add(mainPanel, BorderLayout.CENTER);
 	}
 
-	private JPanel createGameStartPanel(String identifier) 
+	/**
+	 * This panel allows the player to pick how many rows they want.
+	 * This is the first panel the user sees when the game is started.
+	 * 
+	 * @return A formatted Panel
+	 */
+	private JPanel createGameStartPanel() 
 	{
 		JPanel gameStartPanel = new JPanel();
 		gameStartPanel.setLayout(new BorderLayout(15, 15));
@@ -94,12 +94,19 @@ public class InitialFrame extends JFrame
 		return gameStartPanel;
 	}
 
+	/**
+	 * This panel is located to the SOUTH of the gameStartPanel and
+	 * has the textfield where the user can enter the number of rows
+	 * he or she wants.
+	 * 
+	 * @return A panel inside the gameStartPanel
+	 */
 	private JPanel createInputPanel_GameStartPanel() 
 	{
 		JPanel inputPanel = new JPanel();
 		inputPanel.setBackground(Color.DARK_GRAY);
 		
-		JLabel enterTextHereLabel = new JLabel("Enter the Amount of rows :  ");
+		JLabel enterTextHereLabel = new JLabel("Enter the number of rows :  ");
 		enterTextHereLabel.setForeground(Color.WHITE);
 		enterTextHereLabel.setFont(new Font("Verdana", Font.PLAIN, 20));
 		inputPanel.add(enterTextHereLabel);
@@ -113,6 +120,12 @@ public class InitialFrame extends JFrame
 		return inputPanel;
 	}
 
+	/**
+	 * A button that has an ActionListener that changes panels
+	 * to the Minesweeper Panel.
+	 * 
+	 * @return A button that is used to start Minesweeper
+	 */
 	private JButton createPlayGameButton_GameStartPanel() 
 	{
 		JButton playGameButton = new JButton("Play Game!");
@@ -124,9 +137,13 @@ public class InitialFrame extends JFrame
 			{
 				if (isTextInputNumber())
 				{
+					mainPanel.remove(gameStartPanel);
+					
 					minesweeperPanel = new MinesweeperPanel(Integer.parseInt(textInput));
-					mainPanel.add(minesweeperPanel);
-					layout.show(mainPanel, MINESWEEPER);
+					mainPanel.add(minesweeperPanel, BorderLayout.CENTER);
+					
+					revalidate();
+					repaint();
 				}
 				else
 					JOptionPane.showMessageDialog(null, "asdfasfd");
@@ -137,71 +154,23 @@ public class InitialFrame extends JFrame
 
 	private JTextField createTextField_GameStartPanel()
 	{
-		JTextField textField = new JTextField();
+		textField = new JTextField();
 		textField.setColumns(10);
 		textField.setFont(new Font("Verdana", Font.BOLD, 20));
-		textField.addActionListener(new ActionListener() 
-		{
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				textInput = e.getActionCommand();
-			}
-		});
+		
 		return textField;
 	}
 	
 	private boolean isTextInputNumber()
 	{
-		if (textInput == null)
+		if (textField.getText() == null)
 		{
 			textInput = "8";
 			return true;
 		}
+		
+		textInput = textField.getText();
 		textInput = textInput.replaceAll("[^0-9]", "").trim();
 		return true;
 	}
-
-	private JPanel createCardPanel()
-	{				
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(layout);
-		mainPanel.setBackground(Color.RED);
-		
-		return mainPanel;
-	}
-	
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//	private JButton createButton(String name, final String id) 
-//	{
-//		JButton button = new JButton(name);
-//		button.setFont(new Font(button.getFont().getFamily(), Font.PLAIN, 18));
-//		button.addActionListener(new ActionListener() 
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent e) 
-//			{
-//				layout.show(mainPanel, id);
-//			}
-//		});
-//		return button;
-//	}
 }

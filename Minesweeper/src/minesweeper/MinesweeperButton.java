@@ -13,9 +13,13 @@ public class MinesweeperButton extends JButton
 	private boolean isMine;
 	private int number;
 	private static boolean gameOver = false;
-	
-	public MinesweeperButton()
+	private int rowNumber;
+	private int columnNumber;
+		
+	public MinesweeperButton(int r, int c)
 	{
+		rowNumber = r;
+		columnNumber = c;
 		isMine = true;
 		number = -1;
 		addActionListener(new ActionListener() 
@@ -30,8 +34,10 @@ public class MinesweeperButton extends JButton
 		});
 	}
 	
-	public MinesweeperButton(int number)
+	public MinesweeperButton(int number, int r, int c)
 	{
+		rowNumber = r;
+		columnNumber = c;
 		this.number = number;
 		isMine = false;
 		setForeground(Color.WHITE);
@@ -45,19 +51,27 @@ public class MinesweeperButton extends JButton
 				setBackground(Color.WHITE);
 				
 				if (getNumber() == 0)
-					setText("");
+				{
+					setEnabled(false);
+					MinesweeperPanel.revealNonNumberedSquares(rowNumber, columnNumber);
+				}
 				else
+				{
 					setText(getNumber() + "");
+				}
 				
 				setEnabled(false);
 			}
 		});
 	}
+	
+	
 
-	public int getNumber() 
+	public int getNumber()
 	{
 		return number;
 	}
+	
 
 	public void setNumber(int number) 
 	{
@@ -73,6 +87,29 @@ public class MinesweeperButton extends JButton
 	{
 		return gameOver;
 	}
+
+	public void setRowNumber(int rowNumber) 
+	{
+		this.rowNumber = rowNumber;
+	}
+
+	public void setColumnNumber(int columnNumber) 
+	{
+		this.columnNumber = columnNumber;
+	}
+	
+//	public boolean isClicked()
+//	{
+//		return isClicked;
+//	}
+//
+//	public static int getTestVar() {
+//		return testVar;
+//	}
+//
+//	public static void setTestVar(int testVar) {
+//		MinesweeperButton.testVar = testVar;
+//	}
 	
 	
 }
