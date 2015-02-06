@@ -3,10 +3,12 @@ package minesweeper;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +29,7 @@ public class MinesweeperPanel extends JPanel
 	protected static MinesweeperButton[][] buttonArray;
 	private static List<MinesweeperButton> buttons;
 	protected static int numberOfRows;
+	protected static int numberOfColumns;
 	private static JPanel buttonArrayPanel;
 	private static boolean rightBoundaryHit;
 	private static boolean upperBoundaryHit;
@@ -38,6 +41,12 @@ public class MinesweeperPanel extends JPanel
 	private static int tilesAvailable_DOWN;
 	private static int[] cursorMovements;
 	
+	/*
+	 * Edit theses variables to change the game.
+	 */
+	private static int mines = 5;
+
+	
 	/**
 	 * Initially create the panels.
 	 * 
@@ -47,6 +56,7 @@ public class MinesweeperPanel extends JPanel
 	public MinesweeperPanel(int rows, int columns)
 	{
 		numberOfRows = rows;
+		numberOfColumns = columns;
 		setLayout(new BorderLayout(5,5));
 		setBackground(Color.WHITE);
 		
@@ -70,9 +80,7 @@ public class MinesweeperPanel extends JPanel
 	 * @param columns
 	 */
 	public static void createMinesweeperButtons(int rows, int columns) 
-	{
-		int mines = assignNumberOfMines(rows);
-		
+	{		
 		buttons = new ArrayList<>();
 		
 		for (int i = 0; i < mines; i++)
@@ -198,13 +206,17 @@ public class MinesweeperPanel extends JPanel
 	protected static void revealNonNumberedSquares(int rowNumber, int columnNumber)
 	{
 		MinesweeperButton activeButton = null;
+		tilesAvailable_UP = rowNumber;
+		tilesAvailable_RIGHT = numberOfColumns - columnNumber - 1;
+		tilesAvailable_LEFT = columnNumber;
+		tilesAvailable_DOWN = numberOfRows - rowNumber - 1;
 		
 		//This stands for: move down 1, right 1, up 2, left 2, down 2, and finally right 0.
 		//After the while loop: {2, 2, 4, 4, 4, 1}.  After the next: {3, 3, 6, 6, 6, 2}.
 		cursorMovements = new int[] {1,1,2,2,2,0};
 		
 		int layer = 1;
-		while (layer < 10)	//layer < 10 is not necessary.  It could be layer < 5 if you want.
+		while (layer < 3)	//layer < 10 is not necessary.  It could be layer < 5 if you want.
 		{
 			revealNonNumberedSquares_resetVariables(rowNumber, columnNumber);
 			printVariableInfo(rowNumber, columnNumber, layer);
@@ -258,10 +270,11 @@ public class MinesweeperPanel extends JPanel
 					//Left
 					for (int i = 1; i <= cursorMovements[3]; i++)
 					{
-						if (columnNumber - i + 1 + (layer - 1) < numberOfRows && columnNumber - i + 1 + (layer - 1) >= 0)
+						if (columnNumber - i + 1 + (layer - 1) < numberOfRows && columnNumber - i + 1 + (layer - 1) >= 0) {
 							activeButton = buttonArray[rowNumber - cursorMovements[0]][columnNumber - i + 1 + (layer - 1)];
-						if (!activeButton.getIsMine())
-							showButtonNumber(activeButton);
+							if (!activeButton.getIsMine())
+								showButtonNumber(activeButton);
+						}
 					}
 				}
 				
@@ -300,10 +313,6 @@ public class MinesweeperPanel extends JPanel
 		upperBoundaryHit = true;
 		lowerBoundaryHit = true;
 		left_BoundaryHit = true;
-		tilesAvailable_UP = rowNumber;
-		tilesAvailable_RIGHT = numberOfRows - columnNumber - 1;	//Should be columnNumber - numberOfColumns
-		tilesAvailable_LEFT = columnNumber;
-		tilesAvailable_DOWN = numberOfRows - rowNumber - 1;
 		
 		if (tilesAvailable_DOWN >= cursorMovements[0])
 			lowerBoundaryHit = false;
