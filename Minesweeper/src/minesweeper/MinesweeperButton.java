@@ -18,6 +18,7 @@ public class MinesweeperButton extends JButton
 {
 	private static final long serialVersionUID = 3259047934452202538L;
 	private boolean isMine;
+	private boolean hasBeenRevealed = false;
 	private int number;
 	private int rowNumber;
 	private int columnNumber;
@@ -28,6 +29,7 @@ public class MinesweeperButton extends JButton
 		columnNumber = c;
 		isMine = true;
 		number = -1;
+
 		addActionListener(new ActionListener() 
 		{
 			@Override
@@ -104,4 +106,16 @@ public class MinesweeperButton extends JButton
 	{
 		this.columnNumber = columnNumber;
 	}
+
+	public boolean buttonHasBeenRevealed()
+	{
+		return hasBeenRevealed;
+	}
+
+	public void setButtonHasBeenRevealed(boolean hasBeenRevealed) 
+	{
+		this.hasBeenRevealed = hasBeenRevealed;
+	}
+	
+	
 }
