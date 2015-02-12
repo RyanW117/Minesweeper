@@ -35,6 +35,7 @@ public class MinesweeperButton extends JButton
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				setButtonHasBeenRevealed(true);
 				setBackground(Color.RED);
 				setEnabled(false);
 			}
@@ -57,12 +58,14 @@ public class MinesweeperButton extends JButton
 		this.number = number;
 		isMine = false;
 		setForeground(Color.WHITE);
+
 		setOpaque(true);
 		addActionListener(new ActionListener() 
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				setButtonHasBeenRevealed(true);
 				setFont(new Font("Verdana", Font.BOLD, 18));
 				setBackground(Color.WHITE);
 				
@@ -86,7 +89,6 @@ public class MinesweeperButton extends JButton
 		return number;
 	}
 	
-
 	public void setNumber(int number) 
 	{
 		this.number = number;
@@ -116,6 +118,12 @@ public class MinesweeperButton extends JButton
 	{
 		this.hasBeenRevealed = hasBeenRevealed;
 	}
-	
-	
+
+	public int getRowNumber() {
+		return rowNumber;
+	}
+
+	public int getColumnNumber() {
+		return columnNumber;
+	}
 }
