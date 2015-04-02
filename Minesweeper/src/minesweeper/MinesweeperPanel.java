@@ -41,7 +41,7 @@ public class MinesweeperPanel extends JPanel
 	/*
 	 * Edit theses variables to change the game.
 	 */
-	private static double percentageOfMines = 0.18;
+	private static double percentageOfMines = 0.10;
 	
 	/**
 	 * Initially create the panels.
@@ -76,7 +76,7 @@ public class MinesweeperPanel extends JPanel
 	 * @param columns
 	 */
 	public static void createMinesweeperButtons(int rows, int columns) 
-	{		
+	{
 		buttonArray = new MinesweeperButton[rows][columns];
 		buttons = new ArrayList<>();
 		int mines = assignNumberOfMines(rows, columns);
@@ -230,24 +230,39 @@ public class MinesweeperPanel extends JPanel
 		cursorMovements = new int[] {1,1,2,2,2,0};
 	}
 	
+	/**
+	 * 
+	 * 
+	 * @param activeButton
+	 */
 	private static void revealTiles_CheckAdjacentTiles(MinesweeperButton activeButton)
 	{
 		int row = activeButton.getRowNumber();
 		int col = activeButton.getColumnNumber();
 		boolean adjacentTileIsRevealed = false;
 		
-		if (row + 1 < numberOfRows && buttonArray[row + 1][col].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		if (row + 1 < numberOfRows && col + 1 < numberOfColumns && buttonArray[row + 1][col + 1].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		if (row + 1 < numberOfRows && col - 1 >= 0 && buttonArray[row + 1][col - 1].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		if (row - 1 >= 0 && buttonArray[row - 1][col].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		if (row - 1 >= 0 && col + 1 < numberOfColumns && buttonArray[row - 1][col + 1].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		if (row - 1 >= 0 && col - 1 >= 0 && buttonArray[row - 1][col - 1].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
+		//If the button you clicked is not hitting the bottom of the grid
+		if (row + 1 < numberOfRows)
+		{
+			if (buttonArray[row + 1][col].buttonHasBeenRevealed())
+				adjacentTileIsRevealed = true;
+			if (col + 1 < numberOfColumns && buttonArray[row + 1][col + 1].buttonHasBeenRevealed())
+				adjacentTileIsRevealed = true;
+			if (col - 1 >= 0 && buttonArray[row + 1][col - 1].buttonHasBeenRevealed())
+				adjacentTileIsRevealed = true;
+		}
+		
+		//If the button you clicked is not hitting the top of the grid
+		if (row - 1 >= 0)
+		{
+			if (buttonArray[row - 1][col].buttonHasBeenRevealed())
+				adjacentTileIsRevealed = true;
+			if (col + 1 < numberOfColumns && buttonArray[row - 1][col + 1].buttonHasBeenRevealed())
+				adjacentTileIsRevealed = true;
+			if (col - 1 >= 0 && buttonArray[row - 1][col - 1].buttonHasBeenRevealed())
+				adjacentTileIsRevealed = true;
+		}
+		
 		if (col + 1 < numberOfColumns && buttonArray[row][col + 1].buttonHasBeenRevealed())
 			adjacentTileIsRevealed = true;
 		if (col - 1 >= 0 && buttonArray[row][col - 1].buttonHasBeenRevealed())
