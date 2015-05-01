@@ -14,6 +14,7 @@ import javax.swing.border.EmptyBorder;
 
 /**
  * This class contains most of the GUI aspect of the program and it launches the program.
+ * If you need to add another panel to the program, add it to the card layout.
  * 
  * @author Ryan Wilson
  */
@@ -36,7 +37,7 @@ public class InitialFrame extends JFrame
 	protected static final String WINLOSE = "Win or Lose";
 	protected static JPanel cardPanel;
 	private JPanel panel_WinLose;
-
+	
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable() 

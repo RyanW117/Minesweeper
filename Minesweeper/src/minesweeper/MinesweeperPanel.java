@@ -18,7 +18,7 @@ import javax.swing.JPanel;
  * sure that the all of the MinesweeperButtons have the correct
  * values according to the number of mines that are adjacent to them.
  * It also has a method that allows the user to click a tile with a
- * value of 0 which will automatically any other tile with 0 nearby (still
+ * value of 0 which will automatically uncover any other tile with 0 nearby (still
  * working on that).
  * 
  * @author Ryan Wilson
@@ -37,7 +37,7 @@ public class MinesweeperPanel extends JPanel
 	/*
 	 * Edit theses variables to change the game.
 	 */
-	private static double percentageOfMines = 0.10;
+	private static double percentageOfMines = 0.15;
 	private static Set<MinesweeperButton> adjacentTilesSet;
 	
 	/**
