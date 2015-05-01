@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,7 +23,7 @@ import javax.swing.JPanel;
  * 
  * @author Ryan Wilson
  */
-public class MinesweeperPanel extends JPanel 
+public class MinesweeperPanel extends JPanel
 {
 	private static final long serialVersionUID = 8695450935260311620L;
 	protected static MinesweeperButton[][] buttonArray;
@@ -28,20 +31,14 @@ public class MinesweeperPanel extends JPanel
 	protected static int numberOfRows;
 	protected static int numberOfColumns;
 	private static JPanel buttonArrayPanel;
-	private static boolean rightBoundaryHit;
-	private static boolean upperBoundaryHit;
-	private static boolean lowerBoundaryHit;
-	private static boolean left_BoundaryHit;
-	private static int tilesAvailable_UP;
-	private static int tilesAvailable_RIGHT;
-	private static int tilesAvailable_LEFT;
-	private static int tilesAvailable_DOWN;
-	private static int[] cursorMovements;
+	
+	static Iterator<MinesweeperButton> it;
 	
 	/*
 	 * Edit theses variables to change the game.
 	 */
 	private static double percentageOfMines = 0.10;
+	private static Set<MinesweeperButton> adjacentTilesSet;
 	
 	/**
 	 * Initially create the panels.
@@ -51,6 +48,7 @@ public class MinesweeperPanel extends JPanel
 	 */
 	public MinesweeperPanel(int rows, int columns)
 	{
+		adjacentTilesSet = new HashSet<>();
 		numberOfRows = rows;
 		numberOfColumns = columns;
 		setLayout(new BorderLayout(5,5));
@@ -62,12 +60,12 @@ public class MinesweeperPanel extends JPanel
 		
 		buttonArrayPanel = new JPanel();
 		buttonArrayPanel.setLayout(new GridLayout(rows, 0, 3, 3));
-		buttonArrayPanel.setBackground(Color.WHITE);
+		buttonArrayPanel.setBackground(Color.BLACK);
 		add(buttonArrayPanel, BorderLayout.CENTER);
 		
 		createMinesweeperButtons(rows, columns);
 	}
-
+	
 	/**
 	 * This method creates and orders the MinesweeperButtons so that they
 	 * appear in the correct logical way when playing the game.
@@ -168,6 +166,19 @@ public class MinesweeperPanel extends JPanel
 				}
 			}
 		}
+		boolean tile0Found = true; 
+		while (tile0Found)
+		{
+			double randRow = Math.random() * numberOfRows;
+			double randCol = Math.random() * numberOfColumns;
+			
+			if (buttonArray[(int) randRow][(int) randCol].getNumber() == 0)
+			{
+				buttonArray[(int) randRow][(int) randCol].setColor(Color.GREEN);
+				tile0Found = false;
+			}
+		}
+			
 	}
 
 	/**
@@ -192,294 +203,77 @@ public class MinesweeperPanel extends JPanel
 				buttonArrayPanel.remove(buttonArray[i][j]);
 	}
 	
-	/**
-	 * This method reveals the tiles adjacent to the clicked button with a value of 0.
-	 * Imagine a pointer that first moves down from the clicked button, then right,
-	 * up, left, down again, and right again.  This is essentially the way this method
-	 * checks for adjacent tiles with a value of 0.
-	 * 
-	 * @param rowNumber - r position of the clicked button.
-	 * @param columnNumber - c position of the clicked button.
-	 */
-	protected static void revealNonNumberedSquares(int rowNumber, int columnNumber)
+	public static void addAdjacentBlankTilesToSet(int rows, int columns)
 	{
-		tilesAvailable_UP = rowNumber;
-		tilesAvailable_RIGHT = numberOfColumns - columnNumber - 1;
-		tilesAvailable_LEFT = columnNumber;
-		tilesAvailable_DOWN = numberOfRows - rowNumber - 1;
+		MinesweeperButton activeButton = buttonArray[rows][columns];
+		int ring = 1;
+		adjacentTilesSet.add(activeButton);
 		
-		//This stands for: move down 1, right 1, up 2, left 2, down 2, and finally right 0.
-		//After the while loop: {2, 2, 4, 4, 4, 1}.  After the next: {3, 3, 6, 6, 6, 2}.
-		cursorMovements = new int[] {1,1,2,2,2,0};
-//		showButtonNumber(buttonArray[rowNumber][columnNumber]);
-		
-		int layer = 1;
-		while (layer < ((numberOfRows > numberOfColumns) ? numberOfRows : numberOfColumns))
+		if (columns - 1 >= 0 && columns + 1 < numberOfColumns && rows - 1 >= 0 && rows + 1 < numberOfRows)
 		{
-			revealNonNumberedSquares_resetVariables(rowNumber, columnNumber);
-			printVariableInfo(rowNumber, columnNumber, layer);
-			
-			revealTiles_LowerBoundNotHit(rowNumber, columnNumber);
-			revealTiles_RightBoundNotHit(rowNumber, columnNumber, layer);
-			revealTiles_UpperBoundNotHit(rowNumber, columnNumber, layer);
-			revealTiles_LeftBoundNotHit(rowNumber, columnNumber, layer);
-			
-			layer++;
-			recalculateCursorMovementsArray();
-		}
-		cursorMovements = new int[] {1,1,2,2,2,0};
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param activeButton
-	 */
-	private static void revealTiles_CheckAdjacentTiles(MinesweeperButton activeButton)
-	{
-		int row = activeButton.getRowNumber();
-		int col = activeButton.getColumnNumber();
-		boolean adjacentTileIsRevealed = false;
-		
-		//If the button you clicked is not hitting the bottom of the grid
-		if (row + 1 < numberOfRows)
-		{
-			if (buttonArray[row + 1][col].buttonHasBeenRevealed())
-				adjacentTileIsRevealed = true;
-			if (col + 1 < numberOfColumns && buttonArray[row + 1][col + 1].buttonHasBeenRevealed())
-				adjacentTileIsRevealed = true;
-			if (col - 1 >= 0 && buttonArray[row + 1][col - 1].buttonHasBeenRevealed())
-				adjacentTileIsRevealed = true;
-		}
-		
-		//If the button you clicked is not hitting the top of the grid
-		if (row - 1 >= 0)
-		{
-			if (buttonArray[row - 1][col].buttonHasBeenRevealed())
-				adjacentTileIsRevealed = true;
-			if (col + 1 < numberOfColumns && buttonArray[row - 1][col + 1].buttonHasBeenRevealed())
-				adjacentTileIsRevealed = true;
-			if (col - 1 >= 0 && buttonArray[row - 1][col - 1].buttonHasBeenRevealed())
-				adjacentTileIsRevealed = true;
-		}
-		
-		if (col + 1 < numberOfColumns && buttonArray[row][col + 1].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		if (col - 1 >= 0 && buttonArray[row][col - 1].buttonHasBeenRevealed())
-			adjacentTileIsRevealed = true;
-		
-		if (activeButton.getNumber() == 0 && adjacentTileIsRevealed)
-		{
-			//Down
-			if (row + 1 < numberOfRows)
-				showButtonNumber(buttonArray[row + 1][col]);
-			//Down Right
-			if (col + 1 < numberOfColumns && row + 1 < numberOfRows)
-				showButtonNumber(buttonArray[row + 1][col + 1]);
-			//Right
-			if (col + 1 < numberOfColumns)
-				showButtonNumber(buttonArray[row][col + 1]);
-			//Top Right
-			if (col + 1 < numberOfColumns && row - 1 >= 0)
-				showButtonNumber(buttonArray[row - 1][col + 1]);
-			//Top
-			if (row - 1 >= 0)
-				showButtonNumber(buttonArray[row - 1][col]);
-			//Top Left
-			if (row - 1 >= 0 && col - 1 >= 0)
-				showButtonNumber(buttonArray[row - 1][col - 1]);
-			//Left
-			if (col - 1 >= 0)
-				showButtonNumber(buttonArray[row][col - 1]);
-			//Down Left
-			if (row + 1 < numberOfRows && col - 1 >= 0)
-				showButtonNumber(buttonArray[row + 1][col - 1]);
-		}
-	}
-
-	/**
-	 * This method reveals the tiles that depend on if the lower boundary is hit.
-	 * 
-	 * @param rowNumber of the clicked button
-	 * @param columnNumber of the clicked button
-	 */
-	private static void revealTiles_LowerBoundNotHit(int rowNumber, int columnNumber)
-	{
-		MinesweeperButton activeButton;
-		if (!lowerBoundaryHit)
-		{
-			//Initially Down
-			for (int i = 1; i <= cursorMovements[0]; i++)
+			if (buttonArray[rows - 1][columns].getNumber() == 0)
 			{
-				activeButton = buttonArray[rowNumber + i][columnNumber];
-				revealTiles_CheckAdjacentTiles(activeButton);
+				adjacentTilesSet.add(buttonArray[rows - 1][columns]);
 			}
 			
-			//Initially Right
-			for (int i = 1; i <= cursorMovements[1]; i++)
+			
+			if (buttonArray[rows - 1][columns + 1].getNumber() == 0)
 			{
-				if (columnNumber + i < numberOfRows)
-				{
-					activeButton = buttonArray[rowNumber + cursorMovements[0]][columnNumber + i];
-					revealTiles_CheckAdjacentTiles(activeButton);
-				}
+				adjacentTilesSet.add(buttonArray[rows - 1][columns + 1]);
 			}
 			
-			//Finally Right 
-			for (int i = 1; i <= cursorMovements[5]; i++)
+			
+			if (buttonArray[rows - 1][columns - 1].getNumber() == 0)
 			{
-				if (columnNumber - 1 - (i - 1) >= 0 && columnNumber - 1 - (i - 1) < numberOfRows)
-				{
-					activeButton = buttonArray[rowNumber + cursorMovements[0]][columnNumber - 1 - (i - 1)];
-					revealTiles_CheckAdjacentTiles(activeButton);
-				}
+				adjacentTilesSet.add(buttonArray[rows - 1][columns - 1]);
 			}
-		}
-	}
-	
-	/**
-	 * This method reveals the tiles that depend on if the left boundary is hit.
-	 * 
-	 * @param rowNumber of the clicked button
-	 * @param columnNumber of the clicked button
-	 * @param layer
-	 */
-	private static void revealTiles_LeftBoundNotHit(int rowNumber, int columnNumber, int layer) 
-	{
-		MinesweeperButton activeButton;
-		if (!left_BoundaryHit)
-		{
-			//Finally Down
-			for (int i = 1; i <= cursorMovements[4]; i++)
+			
+			
+			if (buttonArray[rows][columns + ring].getNumber() == 0)
 			{
-				if (rowNumber + i - 1 - (layer - 1) < numberOfRows && rowNumber + i - 1 - (layer - 1) >= 0)
-				{
-					activeButton = buttonArray[rowNumber + i - 1 - (layer - 1)][columnNumber - cursorMovements[0]];
-					revealTiles_CheckAdjacentTiles(activeButton);
-				}
+				adjacentTilesSet.add(buttonArray[rows][columns + 1]);
 			}
-		}
-	}
-
-	/**
-	 * This method reveals the tiles that depend on if the upper boundary is hit.
-	 * 
-	 * @param rowNumber of the clicked button
-	 * @param columnNumber of the clicked button
-	 * @param layer
-	 */
-	private static void revealTiles_UpperBoundNotHit(int rowNumber,	int columnNumber, int layer)
-	{
-		MinesweeperButton activeButton;
-		if (!upperBoundaryHit)
-		{
-			//Left
-			for (int i = 1; i <= cursorMovements[3]; i++)
-			{
-				if (columnNumber - i + 1 + (layer - 1) < numberOfColumns && columnNumber - i + 1 + (layer - 1) >= 0) 
-				{
-					activeButton = buttonArray[rowNumber - cursorMovements[0]][columnNumber - i + 1 + (layer - 1)];
-					revealTiles_CheckAdjacentTiles(activeButton);
-				}
-			}
-		}
-	}
-
-	/**
-	 * This method reveals the tiles that depend on if the right boundary is hit.
-	 * 
-	 * @param rowNumber of the clicked button
-	 * @param columnNumber of the clicked button
-	 * @param layer
-	 */
-	private static void revealTiles_RightBoundNotHit(int rowNumber,	int columnNumber, int layer) 
-	{
-		MinesweeperButton activeButton;
-		if (!rightBoundaryHit)
-		{
-			//UP
-			for (int i = 1; i <= cursorMovements[2]; i++)
-			{
-				if (rowNumber + 1 - i + (layer - 1) >= 0 && rowNumber + 1 - i + (layer - 1) < numberOfRows)
-				{
-					activeButton = buttonArray[rowNumber + 1 - i + (layer - 1)][columnNumber + cursorMovements[0]];
-					revealTiles_CheckAdjacentTiles(activeButton);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Resets all of the necessary variables needed in the revealNonNumberedSquares method.
-	 * 
-	 * @param rowNumber
-	 * @param columnNumber
-	 */
-	private static void revealNonNumberedSquares_resetVariables(int rowNumber, int columnNumber)
-	{
-		rightBoundaryHit = true;
-		upperBoundaryHit = true;
-		lowerBoundaryHit = true;
-		left_BoundaryHit = true;
+			
 		
-		if (tilesAvailable_DOWN >= cursorMovements[0])
-			lowerBoundaryHit = false;
-		if (tilesAvailable_RIGHT >= cursorMovements[0])
-			rightBoundaryHit = false;
-		if (tilesAvailable_LEFT >= cursorMovements[0])
-			left_BoundaryHit = false;
-		if (tilesAvailable_UP >= cursorMovements[0])
-			upperBoundaryHit = false;
-	}
-	
-	/**
-	 * increments the cursorMovements array in a specific way.
-	 */
-	private static void recalculateCursorMovementsArray()
-	{
-		for (int i = 0; i < cursorMovements.length; i++)
-		{
-			if (i <= 1 || i == 5)
-				cursorMovements[i]++;
-			else
-				cursorMovements[i]+=2;
+			if (buttonArray[rows][columns - ring].getNumber() == 0)
+			{
+				adjacentTilesSet.add(buttonArray[rows][columns - ring]);
+			}
+			
+			
+			if (buttonArray[rows + ring][columns].getNumber() == 0)
+			{
+				adjacentTilesSet.add(buttonArray[rows + ring][columns]);
+			}
+			
+			
+			if (buttonArray[rows + ring][columns + ring].getNumber() == 0)
+			{
+				adjacentTilesSet.add(buttonArray[rows + ring][columns + ring]);
+			}
+			
+			
+			if (buttonArray[rows + ring][columns - ring].getNumber() == 0)
+			{
+				adjacentTilesSet.add(buttonArray[rows + ring][columns - ring]);
+			}
+			
+			buttonArray[rows - 1][columns].revealButton();
+			buttonArray[rows - 1][columns + 1].revealButton();
+			buttonArray[rows - 1][columns - 1].revealButton();
+			buttonArray[rows][columns + 1].revealButton();
+//			buttonArray[rows][columns + 1].justShowTheButton();
+//			buttonArray[rows + 1][columns].justShowTheButton();
+//			buttonArray[rows + 1][columns + 1].justShowTheButton();
+//			buttonArray[rows + 1][columns - 1].justShowTheButton();
 		}
-	}
-	
-	/**
-	 * Shows the button's number and sets the button to disabled.
-	 * 
-	 * @param activeButton
-	 */
-	private static void showButtonNumber(MinesweeperButton activeButton)
-	{
-		activeButton.setEnabled(false);
-		if (!activeButton.getIsMine())
-		{
-			activeButton.setText(activeButton.getNumber() + "");
-			activeButton.setButtonHasBeenRevealed(true);
-			if (activeButton.getNumber() == 0)
-				activeButton.setText("");
-		}
-	}
-	
-	/**
-	 * Primarily used for testing.  Shows all of the values of the variables
-	 * that could go wrong.
-	 * 
-	 * @param rowNumber
-	 * @param columnNumber
-	 * @param layers
-	 */
-	private static void printVariableInfo(int rowNumber, int columnNumber, int layers)
-	{
-		System.out.println("\nRow: " + rowNumber + "   " + "Column: " + columnNumber +
-				"\nLayers: " + layers);
+			
 	}
 	
 	public static int getNumberOfRows()
 	{
 		return numberOfRows;
 	}
+	
 }
 

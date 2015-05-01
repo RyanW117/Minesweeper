@@ -1,5 +1,6 @@
 package minesweeper;
 
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -22,6 +23,7 @@ public class MinesweeperButton extends JButton
 	private int number;
 	private int rowNumber;
 	private int columnNumber;
+	private boolean hasBeenEvaluated = false;
 		
 	public MinesweeperButton(int r, int c)
 	{
@@ -35,9 +37,12 @@ public class MinesweeperButton extends JButton
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				setButtonHasBeenRevealed(true);
-				setBackground(Color.RED);
-				setEnabled(false);
+				if (!buttonHasBeenRevealed())
+				{
+					revealButton();
+					CardLayout cl = (CardLayout)(InitialFrame.cardPanel.getLayout());
+			        cl.show(InitialFrame.cardPanel, InitialFrame.WINLOSE);
+				}
 			}
 		});
 	}
@@ -58,31 +63,64 @@ public class MinesweeperButton extends JButton
 		this.number = number;
 		isMine = false;
 		setForeground(Color.WHITE);
-
 		setOpaque(true);
+		
 		addActionListener(new ActionListener() 
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				setButtonHasBeenRevealed(true);
-				setFont(new Font("Verdana", Font.BOLD, 18));
-				setBackground(Color.WHITE);
-				
-				if (getNumber() == 0)
-				{
-					setEnabled(false);
-					MinesweeperPanel.revealNonNumberedSquares(rowNumber, columnNumber);
-				}
-				else
-				{
-					setText(getNumber() + "");
-				}
-				
-				setEnabled(false);
+				revealButton();
 			}
 		});
 	}
+	
+	public void revealButton()
+	{
+		if (number != -1)
+		{
+			setFont(new Font("Verdana", Font.BOLD, 18));
+			setBackground(Color.WHITE);
+			
+			if (getNumber() == 0 && !buttonHasBeenRevealed())
+				MinesweeperPanel.addAdjacentBlankTilesToSet(rowNumber, columnNumber);
+			if (number > 0)
+			{
+				if (number != 0)
+					setText(getNumber() + "");
+				setForeground(Color.BLACK);
+			}
+			setButtonHasBeenRevealed(true);
+		}
+		else
+		{
+			setButtonHasBeenRevealed(true);
+			setBackground(Color.RED);
+		}
+	}
+	
+	public void justShowTheButton()
+	{
+		if (number != -1)
+		{
+			setFont(new Font("Verdana", Font.BOLD, 18));
+			setBackground(Color.WHITE);
+			
+			if (number > 0)
+			{
+				if (number != 0)
+					setText(getNumber() + "");
+				setForeground(Color.BLACK);
+			}
+			setButtonHasBeenRevealed(true);
+		}
+		else
+		{
+			setButtonHasBeenRevealed(true);
+			setBackground(Color.RED);
+		}
+	}
+	
 	
 	public int getNumber()
 	{
@@ -104,7 +142,7 @@ public class MinesweeperButton extends JButton
 		this.rowNumber = rowNumber;
 	}
 
-	public void setColumnNumber(int columnNumber) 
+	public void setColumnNumber(int columnNumber)
 	{
 		this.columnNumber = columnNumber;
 	}
@@ -117,6 +155,20 @@ public class MinesweeperButton extends JButton
 	public void setButtonHasBeenRevealed(boolean hasBeenRevealed) 
 	{
 		this.hasBeenRevealed = hasBeenRevealed;
+	}
+	
+	
+	public void setColor(Color color)
+	{
+		setBackground(color);
+	}
+
+	public boolean isHasBeenEvaluated() {
+		return hasBeenEvaluated;
+	}
+
+	public void setHasBeenEvaluated(boolean hasBeenEvaluated) {
+		this.hasBeenEvaluated = hasBeenEvaluated;
 	}
 
 	public int getRowNumber() {
